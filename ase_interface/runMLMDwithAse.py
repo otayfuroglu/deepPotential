@@ -39,21 +39,29 @@ def path2BaseName(path):
     return mol_path.split('/')[-1].split('.')[0]
 
 
-def run(mol_path, calc_type, temp, replica):
+ def checkCalcFiles(mol_name, calculated_names):
 
-    name = f"{path2BaseName(mol_path)}_{calc_type}_{temp}K_{md_type}"
+     for calculated_name in calculated_names:
+         if mol_name in calculated_name:
+             return False
+    return True
+
+def run(atoms, name, calc_type, temp, replica):
+    
+    #calculation.load_molecule_fromFile(mol_path)
     CW_DIR = os.getcwd()
-
+    
     # main directory for caculation runOpt
     #  if not os.path.exists("ase_worksdir"):
         #  os.mkdir("ase_worksdir")
-
+    
     WORKS_DIR = getWorksDir(f"{RESULT_DIR}/{name}")
-
+    print(WORKS_DIR)
+    
     calculation = AseCalculations(WORKS_DIR)
     calculation.setCalcName(name)
-
-    calculation.load_molecule_fromFile(mol_path)
+    
+    calculation.load_molecule_fromAseatoms(atoms)
     if pbc:
         calculation.molecule.pbc = True
         if replica > 0:
@@ -61,52 +69,52 @@ def run(mol_path, calc_type, temp, replica):
             calculation.makeSupercell(P)
     else:
         calculation.molecule.pbc = False
-
+    
     os.chdir(WORKS_DIR)
-
+    
     if calc_type.lower() in ["schnetpack", "ani", "nequip"]:
         import torch
         # in case multiprocesses, global device variable rise CUDA spawn error.
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         n_gpus = torch.cuda.device_count()
         print("Number of cuda devices --> %s" % n_gpus,)
-
+    
     if calc_type == "schnetpack":
         from schnetpack.environment import AseEnvironmentProvider
         from schnetpack.utils import load_model
         import schnetpack
-
+    
         #  model_path = os.path.join(args.MODEL_DIR, "best_model")
         model_schnet = load_model(model_path, map_location=device)
         if "stress" in properties:
             print("Stress calculations are active")
             schnetpack.utils.activate_stress_computation(model_schnet)
-
+    
         calculation.setSchnetCalcultor(
             model_schnet,
             properties,
             environment_provider=AseEnvironmentProvider(cutoff=5.5),
             device=device,
         )
-
+    
     elif calc_type == "ani":
         calculation.setAniCalculator(model_type="ani2x", device=device, dispCorrection=None)
-
+    
     elif calc_type == "nequip":
         calculation.setNequipCalculator(model_path, device)
-
+    
     elif calc_type.lower() == "n2p2":
         calculation.setN2P2Calculator(
             model_dir=model_path,
             energy_units="eV",
             length_units="Angstrom",
             best_epoch=78)
-
-
+    
+    
     temperature_K = None
     if md_type == "npt":
         temperature_K = temp
-
+    
     calculation.init_md(
       name=name,
       time_step=0.5,
@@ -117,11 +125,9 @@ def run(mol_path, calc_type, temp, replica):
       temperature_K=temperature_K,
       interval=10,
     )
-
+    
     if opt:
-        indices=[atom.index for atom in calculation.molecule if atom.index not in [544, 545, 546]]
-        print(indices)
-        calculation.optimize(fmax=0.005, indices=indices)
+        calculation.optimize(fmax=0.005)
     calculation.run_md(nsteps)
 
     #  setting strain for pressure deformation simultaions
@@ -178,13 +184,38 @@ if __name__ == "__main__":
     replica = args.replica
     model_path = args.model_path
     mol_path = args.mol_path
+    
+    
+    
     pbc = getBoolStr(args.pbc)
     opt = getBoolStr(args.opt)
     nsteps = args.nsteps
     RESULT_DIR = args.RESULT_DIR
     properties = ["energy", "forces", "stress"]  # properties used for training
 
-    run(mol_path, calc_type, temp, replica)
+
+
+    #struc_dir = "ITER2_MOBLEY"
+    #calculated_names = os.listdir(RESULT_DIR)
+    #print(len(calculated))
+    calculated_names = [_dir for _dir in os.listdir(RESULT_DIR)  if os.path.exists(f"{RESULT_DIR}/{_dir}/{_dir}.traj")]
+    #print(len(calculated))
+    atoms_list=read(mol_path, index=":")
+   
+    fl=open("problematic_files.txt", "w")
+    
+    for atoms in atoms_list:
+        #calc = True
+
+        mol_name = atoms.info['label']
+        calc = checkCalcFiles(mol_name, calculated_names)
+        if calc:
+            name = f"{mol_name}_{calc_type}_{temp}K_{md_type}"
+            try:
+                run(atoms, name, calc_type, temp, replica)
+            except:
+                print(mol_name, file=fl)
+
 
     #  temp_list = [100, 150]
     #  file_names = [file_name for file_name in os.listdir(MOL_DIR) if "." in file_name]
