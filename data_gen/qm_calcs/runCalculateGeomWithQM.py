@@ -64,7 +64,7 @@ properties = ["energy", "forces", "dipole_moment"]
 
 calculate = CaculateData(orca_path, calc_type, calculator_type,
                          n_task, in_extxyz_path, out_extxyz_path,
-                         csv_path, rm_out_dir=False)
+                         csv_path, rm_out_dir=True)
 print ("Nuber of out of range geomtries", calculate.countAtoms())
 print("QM calculations Running...")
 # set remove file if has error
