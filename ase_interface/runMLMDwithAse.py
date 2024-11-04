@@ -39,12 +39,12 @@ def path2BaseName(path):
     return mol_path.split('/')[-1].split('.')[0]
 
 
- def checkCalcFiles(mol_name, calculated_names):
+def checkCalcFiles(mol_name, calculated_names):
 
      for calculated_name in calculated_names:
          if mol_name in calculated_name:
              return False
-    return True
+     return True
 
 def run(atoms, name, calc_type, temp, replica):
     
