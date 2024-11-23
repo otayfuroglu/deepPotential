@@ -70,7 +70,7 @@ def get_non_equ_geom(file_base, i):
             atom.position = displaced_atomic_positions(atom.position)
 
         #  write("{}/{}_".format(NON_EQU_XYZ_DIR, file_base)+"{0:0>5}".format(i)+".xyz", atoms)
-        atoms.info["label"] = file_base + f"{i}_" + "{0:0>3}".format(i)
+        atoms.info["label"] = file_base + f"_{i}_" + "{0:0>3}".format(j)
         #write(f"non_equ_geoms_{file_base}.extxyz", atoms, append=True)
         write(f"non_equ_geoms_{fldir.replace('/','').replace('.','')}.extxyz", atoms, append=True)
 
