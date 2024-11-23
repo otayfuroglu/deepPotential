@@ -22,7 +22,7 @@ For a parallel calculation, it is important to use the same seed on all processo
 
 
 def scale_atoms_distence(atoms, scale_factor):
-    #  atoms = atoms.copy()
+   # atoms = atoms.copy()
     atoms.center(vacuum=0.0)
     atoms.set_cell(scale_factor * atoms.cell, scale_atoms=True)
     #print(atoms.cell)
@@ -49,23 +49,20 @@ def displaced_atomic_positions(atom_positions):
         if calc_displacement_atom(atom_positions - n_atom_positions) <= 0.16:
             return n_atom_positions
 
-def get_non_equ_geom(flpath):
+def get_non_equ_geom(file_base, i):
 
     #  NON_EQU_XYZ_DIR = BASE_DIR = "non_equ_geoms"
     #  if not os.path.exists(NON_EQU_XYZ_DIR):
     #      os.mkdir(NON_EQU_XYZ_DIR)
 
-    file_name= flpath.split("/")[-1]
-    file_base = file_name.split(".")[0]
-
-
     scale_range = (0.96, 1.11)
-    scale_step = 0.00020
+    scale_step = 0.04
 
     # scale atomic positions
-    for i, scale_factor in tqdm.tqdm(enumerate(np.arange(scale_range[0], scale_range[1], scale_step))):
+    for j, scale_factor in enumerate(np.arange(scale_range[0], scale_range[1], scale_step)):
         # reread every scaling iteration for escape cumulative scaling
-        atoms = read(flpath)
+
+        atoms = read(f"{fldir}/{file_name}")
         atoms = scale_atoms_distence(atoms, scale_factor)
 
         # randomlu displace atomic positions
@@ -73,17 +70,31 @@ def get_non_equ_geom(flpath):
             atom.position = displaced_atomic_positions(atom.position)
 
         #  write("{}/{}_".format(NON_EQU_XYZ_DIR, file_base)+"{0:0>5}".format(i)+".xyz", atoms)
-        atoms.info["label"] = file_base + "_" + "{0:0>5}".format(i)
-        write(f"non_equ_geoms_{file_base}.extxyz", atoms, append=True)
+        atoms.info["label"] = file_base + f"{i}_" + "{0:0>3}".format(i)
+        #write(f"non_equ_geoms_{file_base}.extxyz", atoms, append=True)
+        write(f"non_equ_geoms_{fldir.replace('/','').replace('.','')}.extxyz", atoms, append=True)
 
-def main():
-
+if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="")
-    parser.add_argument("-flpath", type=str, required=True, help="give hdf5 file base")
+    #  parser.add_argument("-flpath", type=str, required=False, help="give hdf5 file base")
+    parser.add_argument("-fldir", type=str, required=False, help="give hdf5 file base")
     args = parser.parse_args()
-    flpath = args.flpath
-    get_non_equ_geom(flpath)
+    #  flpath = args.flpath
+    fldir = args.fldir
+
+    #  if flpath:
+    #      file_name= flpath.split("/")[-1]
+    #      file_base = file_name.split(".")[0]
+    #      atoms_list = read(flpath, index=":")
 
 
-main()
+    #      for i, atoms in tqdm.tqdm(enumerate(atoms_list)):
+    #          get_non_equ_geom(atoms, file_base, i)
+    #  else:
+    flname_list = [flname for flname in os.listdir(fldir)] # to get list of file names in directory
+
+    for i, file_name in tqdm.tqdm(enumerate(flname_list)):
+        file_base = file_name.split(".")[0]
+        get_non_equ_geom(file_base, i)
+
 
