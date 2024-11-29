@@ -49,52 +49,59 @@ def displaced_atomic_positions(atom_positions):
         if calc_displacement_atom(atom_positions - n_atom_positions) <= 0.16:
             return n_atom_positions
 
-def get_non_equ_geom(file_base, i):
+def get_non_equ_geom(file_base, i, N, atoms=None):
 
     #  NON_EQU_XYZ_DIR = BASE_DIR = "non_equ_geoms"
     #  if not os.path.exists(NON_EQU_XYZ_DIR):
     #      os.mkdir(NON_EQU_XYZ_DIR)
 
     scale_range = (0.96, 1.11)
-    scale_step = 0.04
+    scale_step = (1.11 - 0.96) / N
 
     # scale atomic positions
     for j, scale_factor in enumerate(np.arange(scale_range[0], scale_range[1], scale_step)):
         # reread every scaling iteration for escape cumulative scaling
 
-        atoms = read(f"{fldir}/{file_name}")
-        atoms = scale_atoms_distence(atoms, scale_factor)
+        if fldir:
+            #  atoms = read(f"{fldir}/{file_name}")
+            atoms = scale_atoms_distence(atoms, scale_factor)
 
         # randomlu displace atomic positions
         for atom in atoms:
             atom.position = displaced_atomic_positions(atom.position)
 
-        #  write("{}/{}_".format(NON_EQU_XYZ_DIR, file_base)+"{0:0>5}".format(i)+".xyz", atoms)
         atoms.info["label"] = file_base + f"_{i}_" + "{0:0>3}".format(j)
-        #write(f"non_equ_geoms_{file_base}.extxyz", atoms, append=True)
-        write(f"non_equ_geoms_{fldir.replace('/','').replace('.','')}.extxyz", atoms, append=True)
+        if flpath:
+            #  write("{}/{}_".format(NON_EQU_XYZ_DIR, file_base)+"{0:0>5}".format(i)+".xyz", atoms)
+            #write(f"non_equ_geoms_{file_base}.extxyz", atoms, append=True)
+            write(f"non_equ_geoms_{file_base.replace('/','').replace('.','')}.extxyz", atoms, append=True)
+        elif fldir:
+            #  write("{}/{}_".format(NON_EQU_XYZ_DIR, file_base)+"{0:0>5}".format(i)+".xyz", atoms)
+            #write(f"non_equ_geoms_{file_base}.extxyz", atoms, append=True)
+            write(f"non_equ_geoms_{fldir.replace('/','').replace('.','')}.extxyz", atoms, append=True)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="")
-    #  parser.add_argument("-flpath", type=str, required=False, help="give hdf5 file base")
+    parser.add_argument("-flpath", type=str, required=False, help="give hdf5 file base")
     parser.add_argument("-fldir", type=str, required=False, help="give hdf5 file base")
+    parser.add_argument("-N", type=int, required=True, help="give hdf5 file base")
     args = parser.parse_args()
-    #  flpath = args.flpath
+    flpath = args.flpath
     fldir = args.fldir
+    N = args.N
 
-    #  if flpath:
-    #      file_name= flpath.split("/")[-1]
-    #      file_base = file_name.split(".")[0]
-    #      atoms_list = read(flpath, index=":")
-
-
-    #      for i, atoms in tqdm.tqdm(enumerate(atoms_list)):
-    #          get_non_equ_geom(atoms, file_base, i)
-    #  else:
-    flname_list = [flname for flname in os.listdir(fldir)] # to get list of file names in directory
-
-    for i, file_name in tqdm.tqdm(enumerate(flname_list)):
+    if flpath:
+        fldir = "./"
+        file_name= flpath.split("/")[-1]
         file_base = file_name.split(".")[0]
-        get_non_equ_geom(file_base, i)
+        atoms_list = read(flpath, index=":")
+        for i, atoms in tqdm.tqdm(enumerate(atoms_list)):
+            get_non_equ_geom(file_base, i, N, atoms=atoms)
+    elif fldir:
+        flname_list = [flname for flname in os.listdir(fldir)] # to get list of file names in directory
+
+        for i, file_name in tqdm.tqdm(enumerate(flname_list)):
+            file_base = file_name.split(".")[0]
+            get_non_equ_geom(file_base, i, N)
 
 
