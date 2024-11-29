@@ -61,8 +61,9 @@ def get_non_equ_geom(file_base, i, N, atoms=None):
         # reread every scaling iteration for escape cumulative scaling
 
         if fldir:
-            #  atoms = read(f"{fldir}/{file_name}")
-            atoms = scale_atoms_distence(atoms, scale_factor)
+            atoms = read(f"{fldir}/{file_name}")
+
+        atoms = scale_atoms_distence(atoms, scale_factor)
 
         # randomlu displace atomic positions
         for atom in atoms:
@@ -88,7 +89,6 @@ if __name__ == "__main__":
     fldir = args.fldir
     N = args.N
     if flpath:
-        fldir = "./"
         file_name= flpath.split("/")[-1]
         file_base = file_name.split(".")[0]
         atoms_list = read(flpath, index=":")
