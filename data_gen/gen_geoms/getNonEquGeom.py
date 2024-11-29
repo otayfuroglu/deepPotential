@@ -33,13 +33,11 @@ def scale_atoms_distence(atoms, scale_factor):
 #atoms = read("./fragments/mof5_f1.xyz")
 #scale_atoms_distence(atoms, 2)
 
-
 def random_scale_direction(direction):
     return np.random.uniform(0.96 * direction, 1.10 * direction)
 
 def calc_displacement_atom(directions_distance):
     return np.sqrt(sum(direction**2 for direction in directions_distance))
-
 
 def displaced_atomic_positions(atom_positions):
 
@@ -89,7 +87,6 @@ if __name__ == "__main__":
     flpath = args.flpath
     fldir = args.fldir
     N = args.N
-
     if flpath:
         fldir = "./"
         file_name= flpath.split("/")[-1]
@@ -99,7 +96,6 @@ if __name__ == "__main__":
             get_non_equ_geom(file_base, i, N, atoms=atoms)
     elif fldir:
         flname_list = [flname for flname in os.listdir(fldir)] # to get list of file names in directory
-
         for i, file_name in tqdm.tqdm(enumerate(flname_list)):
             file_base = file_name.split(".")[0]
             get_non_equ_geom(file_base, i, N)
