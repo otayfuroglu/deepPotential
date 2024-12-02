@@ -10,12 +10,25 @@ from pathlib import Path
 
 #  USER = getpass.getuser()
 
+
+def getBoolStr(string):
+    string = string.lower()
+    if "true" in string or "yes" in string:
+        return True
+    elif "false" in string or "no" in string:
+        return False
+    else:
+        print("%s is bad input!!! Must be Yes/No or True/False" %string)
+        sys.exit(1)
+
+
 parser = argparse.ArgumentParser(description="Give something ...")
 parser.add_argument("-in_extxyz", type=str, required=True)
 parser.add_argument("-orca_path", type=str, required=False)
 parser.add_argument("-calc_type", type=str, required=True)
 parser.add_argument("-calculator_type", type=str, required=True)
 parser.add_argument("-n_core", type=int, required=True)
+parser.add_argument("-rm_out_dir", type=str, required=True)
 args = parser.parse_args()
 
 
@@ -25,6 +38,7 @@ n_core = args.n_core
 orca_path = args.orca_path
 calc_type = args.calc_type
 calculator_type = args.calculator_type
+rm_out_dir = getBoolStr(args.rm_out_dir)
 
 in_extxyz = args.in_extxyz
 in_extxyz = in_extxyz.split('/')[-1]
@@ -64,7 +78,7 @@ properties = ["energy", "forces", "dipole_moment"]
 
 calculate = CaculateData(orca_path, calc_type, calculator_type,
                          n_task, in_extxyz_path, out_extxyz_path,
-                         csv_path, rm_out_dir=True)
+                         csv_path, rm_out_dir=rm_out_dir)
 print ("Nuber of out of range geomtries", calculate.countAtoms())
 print("QM calculations Running...")
 # set remove file if has error
