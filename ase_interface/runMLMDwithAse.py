@@ -111,21 +111,38 @@ def run(atoms, name, calc_type, temp, replica):
             best_epoch=78)
     
     
-    temperature_K = None
-    if md_type == "npt":
-        temperature_K = temp
+    #  temperature_K = None
+    #  if md_type == "npt":
+        #  temperature_K = temp
     
+    #  calculation.init_md(
+    #    name=name,
+    #    time_step=0.5,
+    #    temp_init=temp,
+    #    # temp_bath should be None for NVE and NPT
+    #    temp_bath=temp,
+    #    # temperature_K for NPT
+    #    temperature_K=temperature_K,
+    #    interval=10,
+    #  )
+    #
     calculation.init_md(
-      name=name,
-      time_step=0.5,
-      temp_init=temp,
-      # temp_bath should be None for NVE and NPT
-      temp_bath=temp,
-      # temperature_K for NPT
-      temperature_K=temperature_K,
-      interval=10,
+        name=name,
+        md_type=md_type,
+        time_step=0.5,
+        temp_init=temp,
+        temp_bath=temp,
+        temperature_K=temp,
+        pressure=1, #bar
+        friction=0.01,          # Friction coefficient for NVT
+        ttime=25,               # Thermostat coupling time for NPT
+        pfactor=0.6,             # Barostat coupling factor for NPT
+        taut=1e2,               #for NPTBerendsen
+        taup=1e3,               #for NPTBerendsen
+        compressibility=1e-6,   #for NPTBerendsen NPTBerendsen
+        reset=False,
+        interval=1,
     )
-    
     if opt:
         calculation.optimize(fmax=0.005)
     calculation.run_md(nsteps)
@@ -211,10 +228,10 @@ if __name__ == "__main__":
         calc = checkCalcFiles(mol_name, calculated_names)
         if calc:
             name = f"{mol_name}_{calc_type}_{temp}K_{md_type}"
-            try:
-                run(atoms, name, calc_type, temp, replica)
-            except:
-                print(mol_name, file=fl)
+            #  try:
+            run(atoms, name, calc_type, temp, replica)
+            #  except:
+                #  print(mol_name, file=fl)
 
 
 

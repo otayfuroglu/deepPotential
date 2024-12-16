@@ -375,11 +375,18 @@ class AseCalculations(object):
     def init_md(
         self,
         name,
+        md_type="nvt",
         time_step=0.2,
         temp_init=100,
         temp_bath=None,
         temperature_K=None,
         pressure=1, #bar
+        friction=0.01,          # Friction coefficient for NVT
+        ttime=25,  # Thermostat coupling time for NPT
+        pfactor=0.6,    # Barostat coupling factor for NPT
+        taut=1e2, # NPTBerendsen
+        taup=1e3, # NPTBerendsen
+        compressibility=1e-6, # NPTBerendsen NPTBerendsen
         reset=False,
         interval=1,
     ):
@@ -389,41 +396,39 @@ class AseCalculations(object):
         if not self.dynamics or reset:
             self._init_velocities(temp_init=temp_init)
 
-        # setup dynamics
-        if temperature_K:
-            print("NPT ensemble.. Pressure set to %s bar" %pressure)
-            #  self.dynamics = NPTBerendsen(
-            #      self.molecule,
-            #      timestep=time_step * units.fs,
-            #      temperature_K=temperature_K,
-            #      taut=100 * units.fs,
-            #      pressure_au=pressure * 1.01325 * units.bar,
-            #      taup=1000 * units.fs,
-            #      compressibility=4.57e-5 / units.bar)
-
-            externalstress = 1.0*units.Pascal  # (-1.7, -1.7, -1.7, 0, 0, 0)*GPa
-            ttime = 100*units.fs
-            ptime = 300*units.fs
-            #  bulk_modulus = 35*units.GPa
-            #  pfactor = (ptime**2)*bulk_modulus
-
+        if md_type.lower() == "nvt":
+            # Define the Langevin dynamics
+            self.dynamics = Langevin(self.molecule,
+                           timestep=time_step*units.fs,        # Timestep of 1 femtosecond
+                           temperature_K=temperature_K,      # Target temperature in Kelvin
+                           friction=0.01)          # Friction coefficient
+        elif md_type.lower() == "npt":
             self.dynamics = NPT(self.molecule,
-                                5*units.fs,
-                                temperature_K=temperature_K,
-                                externalstress=externalstress,
-                                ttime=ttime,
-                                #  pfactor=pfactor
-                               )
-
-        elif temp_bath:
-            self.dynamics = Langevin(
-                self.molecule,
-                time_step * units.fs,
-                temp_bath * units.kB,
-                1.0 / (100.0 * units.fs),
-            )
-        else:
-            self.dynamics = VelocityVerlet(self.molecule, time_step * units.fs)
+                      timestep=time_step*units.fs,  # Timestep of 1 femtosecond
+                      temperature_K=temperature_K,
+                      externalstress=pressure,
+                      ttime=25*units.fs,  # Thermostat coupling time
+                      pfactor=0.6,)    # Barostat coupling factor
+        elif md_type.lower() == "nptberendsen":
+            self.dynamics = NPTBerendsen(self.molecule,
+                               timestep=time_step*units.fs,  # Timestep of 1 femtosecond
+                               temperature_K=temperature_K,
+                               pressure=pressure,
+                               #  taut=0.5e3 *units.fs,
+                               taut=1e2 *units.fs,
+                               taup=1e3*units.fs,
+                               compressibility=1e-6,
+                              )
+        elif md_type.lower() == "nptberendsen_inhomogeneous":
+            self.dynamics = Inhomogeneous_NPTBerendsen(self.molecule,
+                               timestep=time_step*units.fs,  # Timestep of 1 femtosecond
+                               temperature_K=temperature_K,
+                               pressure=pressure,
+                               #  taut=0.5e3 *units.fs,
+                               taut=1e2 *units.fs,
+                               taup=1e3*units.fs,
+                               compressibility=1e-6,
+                              )
 
         # Create monitors for logfile and traj file
         logfile = os.path.join(self.working_dir, "%s.log" % name)
