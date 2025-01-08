@@ -74,11 +74,12 @@ fl_fmax_comp.write(f"index,fmax_comp_QM,fmax_comp_Model,fmax_comp_diff\n")
 for i in tqdm.trange(0, len(atoms_list), 1):
     #  for i in range(0, len(atoms_list), 1):
     #  try:
+    atoms = atoms_list[i]
     label = atoms.info["label"]
     #  except:
     #      label = f"structure_{i}"
 
-    atoms = atoms_list[i]
+    
     qm_energy = atoms.get_potential_energy() / len(atoms)
     qm_forces = atoms.get_forces().flatten()
 

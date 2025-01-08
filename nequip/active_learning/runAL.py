@@ -14,7 +14,7 @@ args = parser.parse_args()
 
 #  T = 300
 #  it = "iter4"
-it = "iter8"
+it = "iter3"
 version = "v7"
 device = "cuda"
 frag_tpye = "MgF2"
@@ -36,7 +36,7 @@ n_sample = 0
 #  i = 500
 i = 0
 
-fl = open(f"{file_base}_model1_model2_energeis.csv", "w")
+fl = open(f"{file_base}_model1_model2_energeis_5000.csv", "w")
 fl.write(f"index,e_NNP1,e_NNP2,e_diff\n")
 
 #  while n_sample <= 250:
@@ -51,8 +51,8 @@ for i in tqdm.trange(0, len(atoms_list), 2):
     fl.write(f"{i},{e1},{e2},{e_diff}\n")
     fl.flush()
 
-    if e_diff >= 0.003:
-        if n_sample <= 100:
+    if e_diff >= 0.007:
+        if n_sample < 5:
             atoms.info["label"] = f"{file_base}_{it}_" + "{0:0>5}".format(i)
             write(f"{file_base}_AL_{it}.extxyz", atoms, append=True)
 

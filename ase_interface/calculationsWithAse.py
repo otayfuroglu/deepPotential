@@ -375,9 +375,9 @@ class AseCalculations(object):
     def init_md(
         self,
         name,
-        md_type="nvt",
-        time_step=0.2,
-        temp_init=100,
+        md_type=None,
+        time_step=None,
+        temp_init=None,
         temp_bath=None,
         temperature_K=None,
         pressure=1, #bar
@@ -452,7 +452,7 @@ class AseCalculations(object):
 
     def _init_velocities(
         self,
-        temp_init=100,
+        temp_init=None,
         remove_translation=True,
         remove_rotation=True,
     ):

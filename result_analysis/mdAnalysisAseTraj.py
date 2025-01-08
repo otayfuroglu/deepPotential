@@ -107,9 +107,9 @@ else:
     atoms_list = read(traj_path, index=":")
 
 time_axis = np.arange(len(atoms_list[initial_skip:])) * args.stepsize
-#  temps = [atoms.get_temperature() for atoms in atoms_list[initial_skip:]]
-#  pot_energies = [atoms.get_potential_energy() for atoms in atoms_list[initial_skip:]]
-#  kin_energies = [atoms.get_kinetic_energy() for atoms in atoms_list[initial_skip:]]
+temps = [atoms.get_temperature() for atoms in atoms_list[initial_skip:]]
+pot_energies = [atoms.get_potential_energy() for atoms in atoms_list[initial_skip:]]
+kin_energies = [atoms.get_kinetic_energy() for atoms in atoms_list[initial_skip:]]
 vols = [atoms.get_volume() for atoms in atoms_list[initial_skip:]]
 cell_lengths = [atoms.cell.lengths() for atoms in atoms_list[initial_skip:]]
 

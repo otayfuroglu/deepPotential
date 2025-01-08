@@ -137,11 +137,11 @@ def run(atoms, name, calc_type, temp, replica):
         friction=0.01,          # Friction coefficient for NVT
         ttime=25,               # Thermostat coupling time for NPT
         pfactor=0.6,             # Barostat coupling factor for NPT
-        taut=1e2,               #for NPTBerendsen
-        taup=1e3,               #for NPTBerendsen
+        taut=100,               #for NPTBerendsen
+        taup=1000,               #for NPTBerendsen
         compressibility=1e-6,   #for NPTBerendsen NPTBerendsen
         reset=False,
-        interval=1,
+        interval=10,
     )
     if opt:
         calculation.optimize(fmax=0.005)
@@ -216,6 +216,7 @@ if __name__ == "__main__":
     #calculated_names = os.listdir(RESULT_DIR)
     #print(len(calculated))
     calculated_names = [_dir for _dir in os.listdir(RESULT_DIR)  if os.path.exists(f"{RESULT_DIR}/{_dir}/{_dir}.traj")]
+    #calculated_names = [_dir for _dir in os.listdir(RESULT_DIR)]
     #print(len(calculated))
     atoms_list=read(mol_path, index=":")
    
@@ -245,4 +246,4 @@ if __name__ == "__main__":
     #      idxs = range(len(temp_list))
     #      nprocs = len(temp_list)
     #  with Pool(nprocs) as pool:
-    #     pool.map(p_run, idxs)
+    #     pool.map(p_:run, idxs)

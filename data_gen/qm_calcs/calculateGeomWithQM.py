@@ -76,8 +76,8 @@ def g16Calculator(label, n_task):
          basis="6-311++G(3df,3pd)",
          scf="maxcycle=100",
          pop="MK, Hirshfeld",
-         #  extra="# Force",
-         extra="# Force SCRF=(SMD, solvent=water)",
+         extra="# Force",
+         #extra="# Force SCRF=(SMD, solvent=water)",
          addsec=None,
      )
 
