@@ -56,6 +56,11 @@ def get_non_equ_geom(file_base, i, N, atoms=None):
     scale_range = (0.96, 1.11)
     scale_step = (1.11 - 0.96) / N
 
+    try:
+        label = atoms.info["label"] 
+    except:
+        label = file_base
+
     # scale atomic positions
     for j, scale_factor in enumerate(np.arange(scale_range[0], scale_range[1], scale_step)):
         # reread every scaling iteration for escape cumulative scaling
@@ -69,7 +74,7 @@ def get_non_equ_geom(file_base, i, N, atoms=None):
         for atom in atoms:
             atom.position = displaced_atomic_positions(atom.position)
 
-        atoms.info["label"] = file_base + f"_{i}_" + "{0:0>3}".format(j)
+        atoms.info["label"] = label + f"_{i}_" + "{0:0>3}".format(j)
         if flpath:
             #  write("{}/{}_".format(NON_EQU_XYZ_DIR, file_base)+"{0:0>5}".format(i)+".xyz", atoms)
             #write(f"non_equ_geoms_{file_base}.extxyz", atoms, append=True)
