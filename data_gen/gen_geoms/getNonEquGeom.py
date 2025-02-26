@@ -62,27 +62,27 @@ def get_non_equ_geom(file_base, i, N, atoms=None):
         label = file_base
 
     # scale atomic positions
-    for j, scale_factor in enumerate(np.arange(scale_range[0], scale_range[1], scale_step)):
+    for j, scale_factor in tqdm.tqdm(enumerate(np.arange(scale_range[0], scale_range[1], scale_step))):
         # reread every scaling iteration for escape cumulative scaling
 
-        if fldir:
+        if fldir and atoms is None:
             atoms = read(f"{fldir}/{file_name}")
 
-        atoms = scale_atoms_distence(atoms, scale_factor)
-
+        atoms_trial = atoms.copy()
+        atoms_trial = scale_atoms_distence(atoms_trial, scale_factor)
         # randomlu displace atomic positions
-        for atom in atoms:
+        for atom in atoms_trial:
             atom.position = displaced_atomic_positions(atom.position)
 
-        atoms.info["label"] = label + f"_{i}_" + "{0:0>3}".format(j)
+        atoms_trial.info["label"] = label + f"_{i}_" + "{0:0>3}".format(j)
         if flpath:
             #  write("{}/{}_".format(NON_EQU_XYZ_DIR, file_base)+"{0:0>5}".format(i)+".xyz", atoms)
             #write(f"non_equ_geoms_{file_base}.extxyz", atoms, append=True)
-            write(f"non_equ_geoms_{file_base.replace('/','').replace('.','')}.extxyz", atoms, append=True)
+            write(f"non_equ_geoms_{file_base.replace('/','').replace('.','')}.extxyz", atoms_trial, append=True)
         elif fldir:
             #  write("{}/{}_".format(NON_EQU_XYZ_DIR, file_base)+"{0:0>5}".format(i)+".xyz", atoms)
             #write(f"non_equ_geoms_{file_base}.extxyz", atoms, append=True)
-            write(f"non_equ_geoms_{fldir.replace('/','').replace('.','')}.extxyz", atoms, append=True)
+            write(f"non_equ_geoms_{fldir.replace('/','').replace('.','')}.extxyz", atoms_trial, append=True)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="")
