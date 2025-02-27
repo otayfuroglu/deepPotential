@@ -51,10 +51,10 @@ for i in tqdm.trange(0, len(atoms_list), 2):
     fl.write(f"{i},{e1},{e2},{e_diff}\n")
     fl.flush()
 
-    if e_diff >= 0.007:
-        if n_sample < 5:
+    if e_diff >= 0.06160:
             atoms.info["label"] = f"{file_base}_{it}_" + "{0:0>5}".format(i)
             write(f"{file_base}_AL_{it}.extxyz", atoms, append=True)
-
             n_sample += 1
+    if n_sample > 400:
+            break
 fl.close()
