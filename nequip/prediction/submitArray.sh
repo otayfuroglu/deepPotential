@@ -21,6 +21,7 @@
 
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
+#  load modules
 module purge
 module load daint-gpu
 module load PyTorch
