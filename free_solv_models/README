@@ -1,2 +1,14 @@
 #
-# This forder inculures nequip nnps for free solv structures
+# This folder includes nequip nnps for free solv structures
+
+This folder contains:
+
+mobley_isole_NNP.pth → NequIP model trained in gas-phase.
+
+mobley_smd_NNP.pth → NequIP model trained in SMD-water implicit solvent.
+
+FreeSolvSelectedMolecules/ → Selected FreeSolv molecules 
+
+runNequipCalculator.py → Python script to load the trained model and predict energies.
+
+
