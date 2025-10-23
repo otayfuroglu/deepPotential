@@ -5,7 +5,6 @@ from nequip.ase import NequIPCalculator
 from ase.io import read, write
 import tqdm
 import argparse
-from ase.optimize import BFGS
 
 
 
