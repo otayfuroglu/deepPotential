@@ -41,7 +41,7 @@ calc = NequIPCalculator.from_deployed_model(
 
 atoms_list = read(extxyz_path, index=":")
 
-fl_enegies = open(f"{file_base}_qm_model_energeis.csv", "w")
+fl_enegies = open(f"{file_base}_model_energeis.csv", "w")
 fl_enegies.write(f"Name,NNP_Energy\n")
 
 for i in tqdm.trange(0,len(atoms_list), 1):
